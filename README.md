@@ -1,2 +1,1 @@
-pequeña y horrible practica de listas
-=)
+la cocaina es menos mala q esto
