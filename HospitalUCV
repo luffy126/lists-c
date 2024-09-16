@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MAXCONSULTAS 3000
+
+struct Hospital {
+    struct NodoDoctor *doctores;
+    struct NodoPaciente *pacientes;
+};
+
+struct NodoDoctor {
+    struct Doctor *doctor;
+    struct NodoDoctor *sig;
+};
+
+struct Doctor {
+    char *nombre;
+    int edad;
+    int cantidadConsultas;
+    struct Consulta **consultas;
+};
+
+struct Consulta {
+    struct Paciente *paciente;
+};
+
+struct NodoPaciente {
+    struct Paciente *paciente;
+    struct NodoPaciente *sig;
+    struct NodoPaciente *ant;
+};
+
+struct Paciente {
+    char *rut;
+    char *nombre;
+    int edad;
+    char *patologia;
+};
+
+int buscarRutEnfermo(struct NodoDoctor *head, char *rut) {
+    int contador = 0, i;
+    struct NodoDoctor *rec = head;
+
+    while (rec != NULL) {
+        struct Doctor *recDoctor = rec->doctor;
+        for (i = 0; i < recDoctor->cantidadConsultas; i++) {
+            if(strcmp(recDoctor->consultas[i]->paciente->rut, rut) == 0) {
+                contador++;
+            }
+        }
+        rec = rec->sig;
+    }
+    return contador;
+}
+
+struct Paciente *pacienteMasEnfermo(struct Hospital *hospital) {
+    struct Paciente *masEnfermo = NULL;
+    int contadorEnfermo = 0, i;
+    int contador = 0;
+    struct NodoDoctor *rec;
+
+    if (hospital != NULL) {
+        rec = hospital->doctores;
+
+        while (rec != NULL) {
+            struct Doctor *recDoctor = rec->doctor;
+
+            if (recDoctor != NULL && recDoctor->consultas != NULL) {
+                for (i = 0; i < recDoctor->cantidadConsultas; i++) {
+                    struct Consulta *recConsulta = recDoctor->consultas[i];
+                    if (recConsulta != NULL) {
+                        contador = buscarRutEnfermo(rec, recDoctor->consultas[i]->paciente->rut);
+                        if (masEnfermo == NULL || contador > contadorEnfermo) {
+                            masEnfermo = recDoctor->consultas[i]->paciente;
+                            contadorEnfermo = contador;
+                        }
+                    }
+                }
+            }
+            rec = rec->sig;
+        }
+    }
+}
+
+int main (){
+    struct Hospital *hospitalUCV;
+    printf("el pepe");
+    return 0;
+}
