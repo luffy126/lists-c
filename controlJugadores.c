@@ -1,5 +1,12 @@
 /* Nombres: Simón Andrés Ledezma Sepúveda, 21.836.882-4 // Tomás Alonso Monge Dubreuil, 20.991.997-4 */
 
+// Enunciado: Implemente struct Jugador *jugadorConMasMedallas(struct SistemaJuegos *ps5);
+
+/*  Recibe por parámetro un puntero al sistema de juegos y deberá retornar el jugador que tiene la mayor cantidad de medallas. 
+    Asuma que sólo existe un mayor. En caso de fracaso retorna NULL. 
+    No puede asumir una variable "mayor = 0". 
+    No puede hacer cambios en la definición de los structs. */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +42,20 @@ struct SistemaJuegos{
 };
 
 ////////////////////////////////////////
+int contarMedallasJugador(struct Jugador *jugador) {
+    int contador = 0;
+    
+    if (jugador == NULL || jugador->medallas == NULL) {
+        return 0;  // Si el jugador o su arreglo de medallas es NULL, retornamos 0
+    }
+
+    while (jugador->medallas[contador] != NULL) {
+        contador++;
+    }
+    
+    return contador;
+}
+
 
 int recorrerJugadoresEnOrden(struct NodoJugador *nodo) {
     int contador = -1;
