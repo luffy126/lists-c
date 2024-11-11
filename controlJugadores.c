@@ -36,27 +36,70 @@ struct SistemaJuegos{
 
 ////////////////////////////////////////
 
-void recorrerJugadoresEnOrden(struct NodoJugador *nodo) {
-    int contador = 0;
+int recorrerJugadoresEnOrden(struct NodoJugador *nodo) {
+    int contador = -1;
+    int contadorMasMedallas = -1;
+    int idJugador = -1;
+
     if (nodo == NULL) {
-        return;
+        return -1;
     }
     recorrerJugadoresEnOrden(nodo->enlace1); // Recorrer el subárbol izquierdo
-    contador += contarMedallasJugador(nodo->jugador->medallas); // Procesar el nodo actual
+
+    if (nodo->jugador->medallas != NULL) {
+        contador = contarMedallasJugador(nodo->jugador->medallas);
+
+        if (contador > contadorMasMedallas) {
+            contadorMasMedallas = contador;
+            if(nodo->jugador != NULL) {
+                idJugador = nodo->jugador->id;
+            }
+        }
+    }
+    
     recorrerJugadoresEnOrden(nodo->enlace2); // Recorrer el subárbol derecho
     
-    return contador;
+    return idJugador;
 }
 
-struct Jugador *jugadorConMasMedallas(struct SistemaJuegos *ps5) {
+struct Jugador *buscarJugador(struct NodoJugador *nodo, int idJugador) { // Buscar jugador por id
     struct Jugador *jugador = NULL;
+
+    if (nodo == NULL) {
+        return NULL;
+    }
+
+    if (nodo->jugador->id == idJugador) {
+        return nodo->jugador;
+    }
+
+    jugador = buscarJugador(nodo->enlace1, idJugador);
+    
+    if (jugador != NULL && jugador->id == idJugador) {
+        return jugador;
+    }
+
+    jugador = buscarJugador(nodo->enlace2, idJugador);
+    return jugador;
+}
+
+struct Jugador *jugadorConMasMedallas(struct SistemaJuegos *ps5) { // Jugador con más medallas
+    struct Jugador *jugadorMasMedallas = NULL;
     struct NodoJugador *nodo = ps5->jugadores;
-    int medallas = 0;
+    int idJugadorMasMedallas = 0;
 
     if (ps5 == NULL || ps5->jugadores == NULL || ps5->jugadores->jugador == NULL || ps5->jugadores->jugador->medallas == NULL) {
         return NULL;
     }
 
+    idJugadorMasMedallas = recorrerJugadoresEnOrden(nodo);
+
+    if(idJugadorMasMedallas == -1) {
+        return NULL;
+    }
+
+    jugadorMasMedallas = buscarJugador(nodo, idJugadorMasMedallas);
+    return jugadorMasMedallas;
 }
 
 int main() {
