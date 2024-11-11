@@ -5,7 +5,8 @@
 /*  Recibe por parámetro un puntero al sistema de juegos y deberá retornar el jugador que tiene la mayor cantidad de medallas. 
     Asuma que sólo existe un mayor. En caso de fracaso retorna NULL. 
     No puede asumir una variable "mayor = 0". 
-    No puede hacer cambios en la definición de los structs. */
+    No puede hacer cambios en la definición de los structs. 
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,84 +43,79 @@ struct SistemaJuegos{
 };
 
 ////////////////////////////////////////
-int contarMedallasJugador(struct Jugador *jugador) {
+
+int contarMedallasSistema(struct SistemaJuegos *ps5) { // cuenta todas las medallas del sistema
     int contador = 0;
-    
-    if (jugador == NULL || jugador->medallas == NULL) {
-        return 0;  // Si el jugador o su arreglo de medallas es NULL, retornamos 0
+    struct NodoMedalla *nodo = NULL;
+
+    if (ps5 == NULL || ps5->medallas == NULL) {
+        return -1;  // en caso de error retorna -1
     }
 
-    while (jugador->medallas[contador] != NULL) {
+    nodo = ps5->medallas;
+
+    do {
         contador++;
+        nodo = nodo->sig;
+    } while (nodo != ps5->medallas || nodo != NULL);
+    
+    return contador;
+}
+
+int contarMedallasJugador(struct Jugador *jugador, int totalMedallas) { // cuenta medallas de un jugador
+    int contador = 0;
+    int i;
+    
+    if (jugador == NULL || jugador->medallas == NULL) {
+        return 0;  // retorna 0 en caso de error
+    }
+
+    for (i = 0; contador < totalMedallas; i++) {
+        if (jugador->medallas[i] != NULL) {
+            contador++;
+        }
     }
     
     return contador;
 }
 
+void recorrerJugadoresEnOrden(struct NodoJugador *nodo, struct Jugador **jugadorMasMedallas, int totalMedallas, int *contadorMasMedallas) { // void pero modifica el puntero original
+    if (nodo == NULL) {
+        return;
+    }
+    
+    // recorrer izq
+    recorrerJugadoresEnOrden(nodo->enlace1, jugadorMasMedallas, totalMedallas, contadorMasMedallas);
 
-int recorrerJugadoresEnOrden(struct NodoJugador *nodo) {
-    int contador = -1;
+    // procesar jugador actual
+    int contador = contarMedallasJugador(nodo->jugador, totalMedallas);
+    
+    if (contador > *contadorMasMedallas) {
+        *contadorMasMedallas = contador;
+        *jugadorMasMedallas = nodo->jugador;
+    }
+
+    // recorrer der
+    recorrerJugadoresEnOrden(nodo->enlace2, jugadorMasMedallas, totalMedallas, contadorMasMedallas);
+}
+
+struct Jugador *jugadorConMasMedallas(struct SistemaJuegos *ps5) { // encuentra el jugador con más medallas
+    int totalMedallas = -1;
     int contadorMasMedallas = -1;
-    int idJugador = -1;
-
-    if (nodo == NULL) {
-        return -1;
-    }
-    recorrerJugadoresEnOrden(nodo->enlace1); // Recorrer el subárbol izquierdo
-
-    if (nodo->jugador->medallas != NULL) {
-        contador = contarMedallasJugador(nodo->jugador->medallas);
-
-        if (contador > contadorMasMedallas) {
-            contadorMasMedallas = contador;
-            if(nodo->jugador != NULL) {
-                idJugador = nodo->jugador->id;
-            }
-        }
-    }
-    
-    recorrerJugadoresEnOrden(nodo->enlace2); // Recorrer el subárbol derecho
-    
-    return idJugador;
-}
-
-struct Jugador *buscarJugador(struct NodoJugador *nodo, int idJugador) { // Buscar jugador por id
-    struct Jugador *jugador = NULL;
-
-    if (nodo == NULL) {
-        return NULL;
-    }
-
-    if (nodo->jugador->id == idJugador) {
-        return nodo->jugador;
-    }
-
-    jugador = buscarJugador(nodo->enlace1, idJugador);
-    
-    if (jugador != NULL && jugador->id == idJugador) {
-        return jugador;
-    }
-
-    jugador = buscarJugador(nodo->enlace2, idJugador);
-    return jugador;
-}
-
-struct Jugador *jugadorConMasMedallas(struct SistemaJuegos *ps5) { // Jugador con más medallas
     struct Jugador *jugadorMasMedallas = NULL;
-    struct NodoJugador *nodo = ps5->jugadores;
-    int idJugadorMasMedallas = 0;
 
-    if (ps5 == NULL || ps5->jugadores == NULL || ps5->jugadores->jugador == NULL || ps5->jugadores->jugador->medallas == NULL) {
+    if (ps5 == NULL || ps5->jugadores == NULL) {
         return NULL;
     }
 
-    idJugadorMasMedallas = recorrerJugadoresEnOrden(nodo);
-
-    if(idJugadorMasMedallas == -1) {
+    totalMedallas = contarMedallasSistema(ps5); // contador total de medallas
+    
+    if (totalMedallas < 0) {
         return NULL;
-    }
+    }  
 
-    jugadorMasMedallas = buscarJugador(nodo, idJugadorMasMedallas);
+    recorrerJugadoresEnOrden(ps5->jugadores, &jugadorMasMedallas, totalMedallas, &contadorMasMedallas); // recorrer jugadores y modificar el puntero al que tenga mas medallas
+    
     return jugadorMasMedallas;
 }
 
