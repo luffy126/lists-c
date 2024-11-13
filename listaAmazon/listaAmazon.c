@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define MAXBOLETAS 1000
 
 struct Usuario {
     int id;
@@ -114,7 +115,7 @@ void recorrerBoletas(struct Amazonas *amazonas) {
         }
 
         if (rec->usuario->boletas != NULL) {
-            for (i = 0; rec->usuario->boletas[i] != NULL; i++) {
+            for (i = 0; rec->usuario->boletas[i] != NULL || i < MAXBOLETAS; i++) {
                 printf("Boleta: %s\n", rec->usuario->boletas[i]);
             }
         } else {
