@@ -127,7 +127,7 @@ void recorrerBoletas(struct Amazonas *amazonas) {
 }
 int main() {
     struct Amazonas *amazonas = NULL;
-    printf("el pepe");
+    printf("ete sech");
     return 0;
 }
 
